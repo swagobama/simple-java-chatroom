@@ -3,204 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Java Chat Custom</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Midnight Messenger</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* 1. ANIMATIONS */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* 2. GLOBAL RESET & BODY */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        /* 1. RESET & BASICS */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         
         body {
-            /* Animated Gradient Background */
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradientMove 15s ease infinite;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+            overflow: hidden; /* No scroll on the page itself */
+            background-color: #0f172a; /* Very dark midnight blue */
+            color: #cbd5e1; /* Light slate text */
         }
 
-        /* 3. THE GLASS CARD (Main Container) */
-        .glass-container {
-            width: 90%;
-            max-width: 900px;
-            height: 85vh;
-            background: rgba(255, 255, 255, 0.15); /* Semi-transparent white */
-            backdrop-filter: blur(12px); /* The "Frosted Glass" blur effect */
-            -webkit-backdrop-filter: blur(12px); /* Safari support */
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        /* 2. MAIN LAYOUT (Split Screen) */
+        .app-container {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* --- LEFT SIDE: SIDEBAR (30% or fixed width) --- */
+        .sidebar {
+            width: 300px; /* Fixed width looks better than % for sidebars */
+            min-width: 250px;
+            background-color: #1e293b; /* Lighter midnight blue */
+            border-right: 1px solid #334155;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
-        /* 4. HEADER */
-        .header {
+        .sidebar-header {
             padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
+            font-size: 1.2rem;
             font-weight: 600;
-            font-size: 1.1rem;
+            color: white;
+            border-bottom: 1px solid #334155;
+            background-color: #1e293b;
+        }
+
+        .contact-list {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        /* Placeholder Contacts */
+        .contact {
+            padding: 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
             display: flex;
             align-items: center;
-            letter-spacing: 1px;
+            gap: 10px;
         }
+        .contact:hover { background-color: #334155; }
+        .contact.active { background-color: #3b82f6; color: white; } /* Active Blue */
         
-        .header::before {
-            content: '●';
-            color: #00ff88;
-            margin-right: 10px;
-            font-size: 1.2rem;
-            text-shadow: 0 0 5px #00ff88;
+        .avatar {
+            width: 35px; height: 35px;
+            border-radius: 50%;
+            background-color: #475569;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 0.9rem; font-weight: bold; color: white;
         }
 
-        /* 5. CHAT AREA */
+        /* --- RIGHT SIDE: CHAT AREA --- */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #0f172a; /* Darkest blue background */
+            position: relative;
+        }
+
+        /* Chat Header */
+        .chat-header {
+            padding: 15px 25px;
+            background-color: #1e293b;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+        .chat-title { font-weight: 600; font-size: 1.1rem; color: white; }
+        .status { font-size: 0.8rem; color: #4ade80; } /* Online green */
+
+        /* Messages Area */
         #chat-box {
             flex: 1;
-            padding: 25px;
+            padding: 20px 40px; /* More side padding for readability */
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
 
-        /* Scrollbar styling for the glass look */
-        #chat-box::-webkit-scrollbar { width: 6px; }
-        #chat-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+        /* Scrollbar Styling */
+        #chat-box::-webkit-scrollbar { width: 8px; }
+        #chat-box::-webkit-scrollbar-track { background: #0f172a; }
+        #chat-box::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
 
-        /* 6. MESSAGE BUBBLES */
+        /* Bubbles */
         .message-wrapper {
+            max-width: 60%;
             display: flex;
             flex-direction: column;
-            max-width: 70%;
-            animation: fadeIn 0.3s ease-out;
         }
 
         .username {
             font-size: 0.75rem;
-            margin-bottom: 4px;
-            margin-left: 12px;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 300;
+            margin-bottom: 5px;
+            margin-left: 2px;
+            color: #94a3b8;
         }
 
         .bubble {
-            padding: 12px 18px;
-            border-radius: 18px;
+            padding: 12px 16px;
+            border-radius: 12px;
             font-size: 0.95rem;
             line-height: 1.5;
             position: relative;
             word-wrap: break-word;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        /* RECEIVED MESSAGE (Left) */
+        /* Received (Left) - Muted Grey/Blue */
         .received { align-self: flex-start; }
         .received .bubble {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            border-bottom-left-radius: 4px;
+            background-color: #1e293b; 
+            color: #e2e8f0;
+            border-top-left-radius: 2px;
         }
 
-        /* SENT MESSAGE (Right) */
+        /* Sent (Right) - Muted Royal Blue */
         .sent { align-self: flex-end; align-items: flex-end; }
         .sent .bubble {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #2563eb; /* Professional Blue */
             color: white;
-            border-bottom-right-radius: 4px;
+            border-top-right-radius: 2px;
         }
-        .sent .username { display: none; } /* Hide my own name */
+        .sent .username { display: none; }
 
-        /* SYSTEM MESSAGE (Center) */
-        .system { 
-            align-self: center; 
-            max-width: 90%;
-            text-align: center;
-        }
+        /* System Messages */
+        .system { align-self: center; margin: 10px 0; }
         .system .bubble {
-            background: rgba(0, 0, 0, 0.2);
-            color: #ddd;
+            background: transparent;
+            border: 1px solid #334155;
+            color: #94a3b8;
             font-size: 0.8rem;
             padding: 5px 15px;
             border-radius: 20px;
         }
 
-        /* 7. INPUT AREA */
+        /* --- INPUT AREA (Fixed at bottom) --- */
         .input-area {
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.1);
+            padding: 20px 40px;
+            background-color: #1e293b;
+            border-top: 1px solid #334155;
             display: flex;
-            align-items: center;
             gap: 15px;
         }
 
         input {
             flex: 1;
-            padding: 15px 20px;
-            border-radius: 30px;
-            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+            color: white;
+            font-size: 0.95rem;
             outline: none;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-size: 1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: 0.3s;
+            transition: border 0.2s;
         }
-        
-        input::placeholder { color: #888; }
-        input:focus { transform: scale(1.01); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        input:focus { border-color: #3b82f6; }
 
         button {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            padding: 0 25px;
+            border-radius: 8px;
             border: none;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #2563eb;
             color: white;
-            font-size: 1.2rem;
+            font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            transition: background 0.2s;
         }
-
-        button:hover { transform: scale(1.1) rotate(-10deg); }
-        button:disabled { background: #ccc; cursor: default; transform: none; }
+        button:hover { background-color: #1d4ed8; }
+        button:disabled { background-color: #334155; cursor: not-allowed; }
 
     </style>
 </head>
 <body>
 
-    <div class="glass-container">
-        <div class="header">Global Chat Room</div>
-        
-        <div id="chat-box"></div>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-header">Chats</div>
+            <div class="contact-list">
+                <div class="contact active">
+                    <div class="avatar">G</div>
+                    <div>Global Chat</div>
+                </div>
+                <div class="contact">
+                    <div class="avatar" style="background-color: #059669">A</div>
+                    <div>Alice</div>
+                </div>
+                <div class="contact">
+                    <div class="avatar" style="background-color: #d97706">B</div>
+                    <div>Bob</div>
+                </div>
+            </div>
+        </div>
 
-        <div class="input-area">
-            <input type="text" id="message-input" placeholder="Type a message...">
-            <button id="send-btn" onclick="sendMessage()" disabled>➤</button>
+        <div class="chat-area">
+            <div class="chat-header">
+                <div>
+                    <div class="chat-title"># Global Chat</div>
+                    <div class="status">● Online</div>
+                </div>
+            </div>
+
+            <div id="chat-box"></div>
+
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Type a message...">
+                <button id="send-btn" onclick="sendMessage()" disabled>Send</button>
+            </div>
         </div>
     </div>
 
     <script>
+        //NGROK URL (UPDATE IF NEEDED)
         const socket = new WebSocket('ws://0.tcp.in.ngrok.io:10482'); 
         
         let hasSetUsername = false; 
@@ -243,11 +277,9 @@
         function addMessage(text, type, username = null) {
             const chatBox = document.getElementById('chat-box');
             
-            // Wrapper for alignment and animation
             const wrapper = document.createElement('div');
             wrapper.classList.add('message-wrapper', type);
 
-            // Username Label (only for others)
             if (username && type !== 'system' && type !== 'sent') {
                 const nameDiv = document.createElement('div');
                 nameDiv.classList.add('username');
@@ -255,17 +287,16 @@
                 wrapper.appendChild(nameDiv);
             }
 
-            // The Bubble itself
             const bubble = document.createElement('div');
             bubble.classList.add('bubble');
             bubble.textContent = text;
             wrapper.appendChild(bubble);
 
+            wrapper.appendChild(bubble);
             chatBox.appendChild(wrapper);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Enter key to send
         document.getElementById("message-input").addEventListener("keypress", function(event) {
             if (event.key === "Enter") sendMessage();
         });
